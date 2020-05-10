@@ -8,15 +8,16 @@ namespace GetSha384Example
     {
         public MainForm() => InitializeComponent();
 
-        public static string GetSHA384(string filepath)
+        public string GetSHA384(string filepath)
         {
             FileStream filestream = new FileStream(filepath, FileMode.Open)
             {
                 Position = 0
             };
-
-            return BitConverter.ToString(System.Security.Cryptography.SHA384.Create().ComputeHash(filestream))
+            var filehash = BitConverter.ToString(System.Security.Cryptography.SHA384.Create().ComputeHash(filestream))
                                .Replace("-", string.Empty);
+            filestream.Close();
+            return filehash;
         }
 
         private void SelectFileBTN_Click(object sender, EventArgs e)
@@ -25,9 +26,10 @@ namespace GetSha384Example
             {
                 try
                 {
-                    Sha384Output.Text = GetSHA384(openFileDialog1.FileName);
-                    CurrentFileLabel.Text = openFileDialog1.FileName;
-                    Sha384Output.Focus();
+                    foreach (string file in openFileDialog1.FileNames)
+                    {
+                        dataGridView1.Rows.Add(Path.GetFileName(file), GetSHA384(file));
+                    }
 
                 }
                 catch (Exception ex)
@@ -38,7 +40,5 @@ namespace GetSha384Example
             }
             return;
         }
-
-        private void Sha384Output_Enter(object sender, EventArgs e) => Sha384Output.SelectAll();
     }
 }
